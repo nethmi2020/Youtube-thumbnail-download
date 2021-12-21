@@ -1,3 +1,20 @@
+<?php
+if(isset($_POST['download'])){ // if download btn clicked
+    $imgurl=$_POST['imgurl']; //get img url from hidde input
+    $ch=curl_init($imgurl); //initializing curl
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER,1); 
+    $download=curl_exec($ch);
+    curl_close($ch);
+    header('Content-type:image/jpg');
+    header('Content-Disposition:attachment; filename="thumbnail.jpg"');
+
+}
+?>
+
+
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,21 +32,22 @@
     
 </head>
 <body >
-    <form action="#">
+    <form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="POST">
         <header>Download Thumbnail</header>
         <div class="url-input">
             <span class="title">Paste Video Url:</span>
             <div class="field">
                 <input type="text"  class="" placeholder="https://youtu.be/DyclIVevIes" required>
+                <input type="hidden" class="hidden-input" name="imgurl">
                 <div class="bottom-line"></div>
             </div>
         </div>
             <div class="preview-area">
-                <img src="img.jpg" alt="" class="thumbnail">
+                <img src="" alt="" class="thumbnail">
                 <i class="fas fa-cloud-download-alt icon"></i>
                 <span>Paste video URL to see preview</span>
             </div>
-            <button class="download-btn" type="submit">Download Thumbnail</button>
+            <button class="download-btn" type="submit" name="download">Download Thumbnail</button>
         
     </form>
 
@@ -37,7 +55,8 @@
 
         const uriField=document.querySelector(".field input"),
         previewArea=document.querySelector(".preview-area"),
-        imgTag=previewArea.querySelector(".thumbnail");
+        imgTag=previewArea.querySelector(".thumbnail"),
+        hiddenInput=document.querySelector(".hidden-input");
 
         uriField.onkeyup=()=>{
 
@@ -50,12 +69,24 @@
             if(imgUrl.indexOf("https://www.youtube.com/watch?v=") != -1){ //if entered value is yt vieo url
                 let vidId=imgUrl.split("v=")[1].substring(0,11); // splitting yt video url from v- so we can only get video id
                 console.log(vidId);
+                let yThumbUrl=` https://img.youtube.com/vi/${vidId}/maxresdefault.jpg`;
+                console.log(yThumbUrl);
+                imgTag.src = yThumbUrl;
 
-            }else if(imgUrl.indexOf("https://www.youtu.be/")!= -1){ //if video url is look like this
+            }else if(imgUrl.indexOf("https://youtu.be/") != -1){ //if video url is look like this
+                let vidId=imgUrl.split("be/")[1].substring(0,11); // splitting yt video url from v- so we can only get video id
+                console.log(vidId);
+                let yThumbUrl=` https://img.youtube.com/vi/${vidId}/maxresdefault.jpg`;
+                console.log(yThumbUrl);
+                imgTag.src = yThumbUrl;
 
             }else if(imgUrl.match(/\.(jpe?g|png|gif|bmp|webp)$/i)){ // if entered value is other img file url}
+                imgTag.src=imgUrl;
 
-        }
+            }else{
+                imgTag.src="";
+            }
+            hiddenInput.value=imgTag.src;
     }
     </script>
 </body>
